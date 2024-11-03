@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Etiquetas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 50%;
+            margin: auto;
+            margin-top: 50px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Analizador de Etiquetas Alt y Title</h1>
+        <input type="text" id="urlInput" placeholder="Ingresa la URL del sitio web">
+        <button onclick="analyzeTags()">Analizar</button>
+        <div class="output" id="output"></div>
+    </div>
+
+    <script>
+        function analyzeTags() {
+            const url = document.getElementById('urlInput').value;
+            const outputDiv = document.getElementById('output');
+            outputDiv.textContent = 'Analizando...'; // Mostrar un mensaje de carga
+
+            fetch('http://localhost:5000/scrape', {  // Asegúrate de cambiar la URL si la API corre en otro puerto o dirección
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: url }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                let result = 'Resultados:\n';
+                result += 'Imágenes (alt tags):\n';
+                data.alt_tags.forEach(alt => {
+                    result += alt ? `- ${alt}\n` : '- Sin etiqueta alt\n';
+                });
+                result += '\nEnlaces (title tags):\n';
+                data.title_tags.forEach(title => {
+                    result += title ? `- ${title}\n` : '- Sin etiqueta title\n';
+                });
+                outputDiv.textContent = result;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                outputDiv.textContent = 'Hubo un error al realizar el análisis. Inténtalo de nuevo.';
+            });
+        }
+    </script>
+</body>
+</html>
